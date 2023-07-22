@@ -1,0 +1,24 @@
+{
+	"name": "server",
+	"version": "1.0.0",
+	"description": "",
+	"main": "src/index.ts",
+	"scripts": {
+		"build": "tsc --build",
+		"dev": "nodemon src/index.ts",
+		"prod": "npm run build && node ./dist/index.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@bugsight/tsconfig": "workspace:*",
+		"express": "^4.18.2"
+	},
+	"devDependencies": {
+		"@types/express": "^4.17.17",
+		"@types/node": "^20.4.2",
+		"nodemon": "^3.0.1",
+		"ts-node": "^10.9.1"
+	}
+}

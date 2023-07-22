@@ -1,0 +1,14 @@
+{
+	"name": "bugsight",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"build:server": "pnpm --filter server build",
+		"dev:server": "pnpm --filter server dev",
+		"prod:server": "pnpm --filter server prod"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
+}

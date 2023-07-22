@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"noImplicitAny": true,
+		"allowSyntheticDefaultImports": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"alwaysStrict": true,
+		"useUnknownInCatchVariables": true,
+		"allowUnreachableCode": false,
+		"noImplicitReturns": true,
+		"noUncheckedIndexedAccess": true,
+		"noFallthroughCasesInSwitch": true,
+		"exactOptionalPropertyTypes": true
+	}
+}
