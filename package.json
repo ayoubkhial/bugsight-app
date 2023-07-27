@@ -6,9 +6,13 @@
 	"scripts": {
 		"build:server": "pnpm --filter server build",
 		"dev:server": "pnpm --filter server dev",
-		"prod:server": "pnpm --filter server prod"
+		"prod:server": "pnpm --filter server prod",
+		"format": "prettier . --write"
 	},
 	"keywords": [],
 	"author": "",
-	"license": "ISC"
+	"license": "ISC",
+	"devDependencies": {
+		"prettier": "3.0.0"
+	}
 }

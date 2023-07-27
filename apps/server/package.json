@@ -6,12 +6,14 @@
 	"scripts": {
 		"build": "tsc --build",
 		"dev": "nodemon src/index.ts",
-		"prod": "npm run build && node ./dist/index.js"
+		"prod": "npm run build && node ./dist/index.js",
+		"lint": "eslint ."
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@bugsight/eslint-config-shared": "workspace:*",
 		"@bugsight/tsconfig": "workspace:*",
 		"express": "^4.18.2"
 	},
