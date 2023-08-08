@@ -1,3 +1,5 @@
-import * as server from './server';
+import * as server from './providers/server';
 
-server.start();
+(async () => {
+	await server.start();
+})();
