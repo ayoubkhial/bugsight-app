@@ -5,8 +5,8 @@
 	"main": "src/index.ts",
 	"scripts": {
 		"build": "tsc --build",
-		"dev": "nodemon src/index.ts",
-		"prod": "npm run build && node ./dist/index.js",
+		"dev": "nodemon -r dotenv/config src/index.ts dotenv_config_path=./src/env/.env",
+		"prod": "npm run build && node -r dotenv/config ./dist/index.js dotenv_config_path=./src/env/.env.production",
 		"lint": "eslint ."
 	},
 	"keywords": [],
@@ -20,6 +20,7 @@
 	"devDependencies": {
 		"@types/express": "^4.17.17",
 		"@types/node": "^20.4.2",
+		"dotenv": "^16.3.1",
 		"nodemon": "^3.0.1",
 		"ts-node": "^10.9.1"
 	}

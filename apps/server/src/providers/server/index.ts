@@ -1,10 +1,11 @@
 import express, { Router } from 'express';
 import { Module, getPaths, registerRoutes } from './helper';
 import components from './components';
+import environment from '../../env';
 
 const COMPONENTS_DIRECTORY = '../../api/components';
 const BASE_API_PATH = '/api';
-const PORT = 4000;
+const PORT = environment.node.port;
 
 const start = async () => {
 	const app = express();
@@ -35,7 +36,7 @@ const start = async () => {
 	app.use(BASE_API_PATH, router);
 	app.listen(PORT, () => {
 		// eslint-disable-next-line no-console
-		console.info('Server running on port 4000...');
+		console.info(`Server running on port ${PORT}...`);
 	});
 };
 
