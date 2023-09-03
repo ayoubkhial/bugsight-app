@@ -15,7 +15,8 @@
 	"dependencies": {
 		"@bugsight/eslint-config-shared": "workspace:*",
 		"@bugsight/tsconfig": "workspace:*",
-		"express": "^4.18.2"
+		"express": "^4.18.2",
+		"mongoose": "^7.4.5"
 	},
 	"devDependencies": {
 		"@types/express": "^4.17.17",
