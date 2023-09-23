@@ -5,7 +5,10 @@ export interface NestedComponents {
 }
 
 const components: NestedComponents = {
-	task: 'task'
+	user: 'user',
+	issue: 'issue',
+	project: 'project',
+	sprint: 'sprint'
 };
 
 export default components;

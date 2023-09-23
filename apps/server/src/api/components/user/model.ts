@@ -1,0 +1,96 @@
+import { Document, Schema, Types, model } from 'mongoose';
+import environment from '../../../env/index';
+
+const IS_DEV_MODE = environment.node.env === 'development';
+
+export enum UserRole {
+	DEVELOPER = 'Developer',
+	LEADER = 'Leader',
+	ADMINISTRATOR = 'Administrator'
+}
+
+export interface IUser {
+	name: string;
+	username: string;
+	email: string;
+	password?: string;
+	picture?: {
+		url: string;
+	};
+	roles?: { title: UserRole; project: Types.ObjectId }[];
+	isActive?: boolean;
+	createdAt?: number;
+	updatedAt?: number;
+}
+
+export interface IUserDocument extends IUser, Document {}
+
+const userSchema = new Schema<IUserDocument>(
+	{
+		name: {
+			type: String,
+			required: [true, 'User name is required.'],
+			index: true,
+			trim: true
+		},
+		username: {
+			type: String,
+			required: [true, 'username is required.'],
+			unique: true,
+			minlength: [6, 'Username must at least be 6 characters.'],
+			lowercase: true,
+			trim: true
+		},
+		email: {
+			type: String,
+			required: [true, 'User email is required.'],
+			unique: true,
+			validate: {
+				validator(v: string): boolean {
+					return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+				},
+				message: 'Please enter a valid email.'
+			},
+			lowercase: true,
+			trim: true
+		},
+		password: {
+			type: String,
+			select: false
+		},
+		picture: {
+			url: {
+				type: String,
+				required: true
+			}
+		},
+		roles: [
+			{
+				title: {
+					type: String,
+					enum: Object.values(UserRole),
+					required: true
+				},
+				project: {
+					type: Schema.Types.ObjectId,
+					ref: 'Project',
+					required: true
+				},
+				_id: false
+			}
+		],
+		isActive: {
+			type: Boolean,
+			default: false
+		},
+		createdAt: Number,
+		updatedAt: Number
+	},
+	{
+		autoIndex: IS_DEV_MODE,
+		autoCreate: IS_DEV_MODE,
+		timestamps: { currentTime: () => Date.now() }
+	}
+);
+
+export default model<IUserDocument>('User', userSchema);
