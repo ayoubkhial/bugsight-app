@@ -1,31 +1,25 @@
-import { Document, Schema, model } from 'mongoose';
+import { Document, Schema, Types, model } from 'mongoose';
 import environment from '../../../env/index';
-
 const IS_DEV_MODE = environment.node.env === 'development';
 
-enum ProjectStatus {
+export enum ProjectStatus {
 	ACTIVE = 'Active',
 	ARCHIVED = 'Archived',
 	ON_HOLD = 'On hold',
 	COMPLETED = 'Completed'
 }
 
-interface ILabelConfig {
+export interface ITagConfig {
 	title: string;
 	color?: string;
 	icon?: string;
 }
 
-interface IStatusConfig {
-	title: string;
-	icon?: string;
-}
-
-interface IConfiguration {
-	scopes?: ILabelConfig[];
-	labels?: ILabelConfig[];
-	priorities?: ILabelConfig[];
-	status?: IStatusConfig[];
+export interface IConfiguration {
+	scopes?: Types.DocumentArray<ITagConfig>;
+	labels?: Types.DocumentArray<ITagConfig>;
+	priorities?: Types.DocumentArray<ITagConfig>;
+	statuses?: Types.DocumentArray<ITagConfig>;
 }
 
 export interface IProject {
@@ -33,11 +27,18 @@ export interface IProject {
 	description?: string;
 	status: ProjectStatus;
 	configuration?: IConfiguration;
-	createdAt?: number;
-	updatedAt?: number;
 }
 
 export interface IProjectDocument extends IProject, Document {}
+
+const tagSchema = new Schema<ITagConfig>({
+	title: {
+		type: String,
+		required: true
+	},
+	color: String,
+	icon: String
+});
 
 const projectSchema = new Schema<IProjectDocument>(
 	{
@@ -45,63 +46,34 @@ const projectSchema = new Schema<IProjectDocument>(
 			type: String,
 			required: [true, 'Project name is required.'],
 			maxlength: [50, 'Project name length exceeded the 50 characters limit.'],
-			unique: true
+			index: {
+				unique: true,
+				collation: { locale: 'en', strength: 2 }
+			}
 		},
 		description: String,
 		status: {
 			type: String,
+			trim: true,
+			set: (v: string) => v.charAt(0).toUpperCase() + v.slice(1).toLocaleLowerCase(),
 			enum: Object.values(ProjectStatus),
 			default: ProjectStatus.ACTIVE,
-			required: [true, 'Project status is required.']
+			required: [true, 'Project status is required.'],
+			index: {
+				collation: { locale: 'en', strength: 2 }
+			}
 		},
 		configuration: {
-			scopes: [
-				{
-					title: {
-						type: String,
-						required: true
-					},
-					color: String,
-					icon: String
-				}
-			],
-			labels: [
-				{
-					title: {
-						type: String,
-						required: true
-					},
-					color: String,
-					icon: String
-				}
-			],
-			priorities: [
-				{
-					title: {
-						type: String,
-						required: true
-					},
-					color: String,
-					icon: String
-				}
-			],
-			status: [
-				{
-					title: {
-						type: String,
-						required: true
-					},
-					icon: String
-				}
-			]
-		},
-		createdAt: Number,
-		updatedAt: Number
+			scopes: [tagSchema],
+			labels: [tagSchema],
+			priorities: [tagSchema],
+			statuses: [tagSchema]
+		}
 	},
 	{
 		autoIndex: IS_DEV_MODE,
 		autoCreate: IS_DEV_MODE,
-		timestamps: { currentTime: () => Date.now() }
+		timestamps: true
 	}
 );
 

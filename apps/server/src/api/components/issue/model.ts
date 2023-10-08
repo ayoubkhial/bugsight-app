@@ -3,7 +3,7 @@ import environment from '../../../env/index';
 
 const IS_DEV_MODE = environment.node.env === 'development';
 
-export enum ActivityAction {
+enum ActivityAction {
 	CREATED = 'Created',
 	UPDATED = 'Updated',
 	COMMENTED = 'Commented',
@@ -16,53 +16,51 @@ export enum ActivityAction {
 	MOVED = 'Moved'
 }
 
+interface ITagConfig {
+	title: string;
+	color?: string;
+	icon?: string;
+}
+
+interface IComment {
+	author: { _id: Types.ObjectId; name: string; picture: string };
+	content: string;
+}
+
+// TODO: Add old value and new value
+interface IActivity {
+	action: ActivityAction;
+	by: { _id: Types.ObjectId; name: string; picture: string };
+}
+
 export interface IIssue {
 	number?: number;
 	title: string;
 	description: string;
-	scopes?: {
-		title: string;
-		color: string;
-		icon: string;
-	}[];
-	labels?: {
-		title: string;
-		color: string;
-		icon: string;
-	}[];
-	priority?: {
-		title: string;
-		color: string;
-		icon: string;
-	};
-	status?: {
-		title: string;
-		icon: string;
-	};
+	scopes?: Types.DocumentArray<ITagConfig>;
+	labels?: Types.DocumentArray<ITagConfig>;
+	priority?: ITagConfig;
+	status?: ITagConfig;
 	project: Types.ObjectId;
-	assignee?: { _id: Types.ObjectId; name: string; picture: string };
-	reporter: { _id: Types.ObjectId; name: string; picture?: string };
+	assignee?: { _id: Types.ObjectId; name: string; picture?: { url: string } };
+	reporter: { _id: Types.ObjectId; name: string; picture?: { url: string } };
 	sprint?: Types.ObjectId;
 	dueDate?: Date;
 	watchers?: Types.ObjectId[];
-	comments?: {
-		author: { _id: Types.ObjectId; name: string; picture: string };
-		content: string;
-		createdAt?: number;
-		updatedAt?: number;
-	}[];
-	// TODO: Add old value and new value
-	activities?: {
-		action: ActivityAction;
-		by: { _id: Types.ObjectId; name: string; picture: string };
-		createdAt?: number;
-		updatedAt?: number;
-	}[];
-	createdAt?: number;
-	updatedAt?: number;
+	comments?: Types.DocumentArray<IComment>;
+	activities?: Types.DocumentArray<IActivity>;
 }
 
 export interface IIssueDocument extends IIssue, Document {}
+
+const tagSchema = new Schema<ITagConfig>({
+	title: {
+		type: String,
+		required: true
+	},
+	color: String,
+	icon: String
+});
 
 const activitySchema = new Schema(
 	{
@@ -72,14 +70,22 @@ const activitySchema = new Schema(
 			required: true
 		},
 		by: {
-			type: Types.ObjectId,
-			ref: 'User',
+			type: {
+				_id: {
+					type: Types.ObjectId,
+					ref: 'User',
+					required: true
+				},
+				name: {
+					type: String,
+					required: true
+				},
+				picture: String
+			},
 			required: true
-		},
-		createdAt: Number,
-		updatedAt: Number
+		}
 	},
-	{ timestamps: { currentTime: () => Date.now() } }
+	{ timestamps: true, _id: false }
 );
 
 const commentSchema = new Schema(
@@ -89,14 +95,22 @@ const commentSchema = new Schema(
 			required: true
 		},
 		author: {
-			type: Types.ObjectId,
-			ref: 'User',
+			type: {
+				_id: {
+					type: Types.ObjectId,
+					ref: 'User',
+					required: true
+				},
+				name: {
+					type: String,
+					required: true
+				},
+				picture: String
+			},
 			required: true
-		},
-		createdAt: Number,
-		updatedAt: Number
+		}
 	},
-	{ timestamps: { currentTime: () => Date.now() } }
+	{ timestamps: true, _id: false }
 );
 
 const issueSchema = new Schema<IIssueDocument>(
@@ -113,41 +127,10 @@ const issueSchema = new Schema<IIssueDocument>(
 			type: String,
 			required: [true, 'Issue description is required.']
 		},
-		priority: {
-			title: {
-				type: String,
-				required: true
-			},
-			color: String,
-			icon: String
-		},
-		status: {
-			title: {
-				type: String,
-				required: true
-			},
-			icon: String
-		},
-		labels: [
-			{
-				title: {
-					type: String,
-					required: true
-				},
-				color: String,
-				icon: String
-			}
-		],
-		scopes: [
-			{
-				title: {
-					type: String,
-					required: true
-				},
-				color: String,
-				icon: String
-			}
-		],
+		priority: tagSchema,
+		status: tagSchema,
+		labels: [tagSchema],
+		scopes: [tagSchema],
 		project: {
 			type: Schema.Types.ObjectId,
 			ref: 'Project',
@@ -163,7 +146,9 @@ const issueSchema = new Schema<IIssueDocument>(
 				type: String,
 				required: true
 			},
-			picture: String
+			picture: {
+				url: String
+			}
 		},
 		reporter: {
 			_id: {
@@ -175,7 +160,9 @@ const issueSchema = new Schema<IIssueDocument>(
 				type: String,
 				required: true
 			},
-			picture: String
+			picture: {
+				url: String
+			}
 		},
 		sprint: {
 			type: Schema.Types.ObjectId,
@@ -193,14 +180,12 @@ const issueSchema = new Schema<IIssueDocument>(
 			}
 		],
 		comments: [commentSchema],
-		activities: [activitySchema],
-		createdAt: Number,
-		updatedAt: Number
+		activities: [activitySchema]
 	},
 	{
 		autoIndex: IS_DEV_MODE,
 		autoCreate: IS_DEV_MODE,
-		timestamps: { currentTime: () => Date.now() }
+		timestamps: true
 	}
 );
 

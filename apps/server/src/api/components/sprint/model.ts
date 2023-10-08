@@ -17,8 +17,6 @@ export interface ISprint {
 	endDate?: Date;
 	status: SprintStatus;
 	project: Types.ObjectId;
-	createdAt?: number;
-	updatedAt?: number;
 }
 
 export interface ISprintDocument extends ISprint, Document {}
@@ -27,7 +25,10 @@ const sprintSchema = new Schema<ISprintDocument>(
 	{
 		name: {
 			type: String,
-			required: [true, 'Sprint name is required.']
+			required: [true, 'Sprint name is required.'],
+			index: {
+				collation: { locale: 'en', strength: 2 }
+			}
 		},
 		description: String,
 		startDate: Date,
@@ -36,21 +37,24 @@ const sprintSchema = new Schema<ISprintDocument>(
 			type: String,
 			required: [true, 'Sprint status is required.'],
 			enum: Object.values(SprintStatus),
-			default: SprintStatus.ACTIVE
+			default: SprintStatus.ACTIVE,
+			index: {
+				collation: { locale: 'en', strength: 2 }
+			}
 		},
 		project: {
 			type: Schema.Types.ObjectId,
 			ref: 'Project',
 			required: [true, 'Sprint project is required.']
-		},
-		createdAt: Number,
-		updatedAt: Number
+		}
 	},
 	{
 		autoIndex: IS_DEV_MODE,
 		autoCreate: IS_DEV_MODE,
-		timestamps: { currentTime: () => Date.now() }
+		timestamps: true
 	}
 );
+
+sprintSchema.index({ name: 1, project: 1 }, { unique: true });
 
 export default model<ISprintDocument>('Sprint', sprintSchema);

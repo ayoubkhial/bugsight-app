@@ -9,6 +9,11 @@ export enum UserRole {
 	ADMINISTRATOR = 'Administrator'
 }
 
+interface IRole {
+	title: UserRole;
+	project: Types.ObjectId;
+}
+
 export interface IUser {
 	name: string;
 	username: string;
@@ -17,10 +22,8 @@ export interface IUser {
 	picture?: {
 		url: string;
 	};
-	roles?: { title: UserRole; project: Types.ObjectId }[];
+	roles?: Types.DocumentArray<IRole>;
 	isActive?: boolean;
-	createdAt?: number;
-	updatedAt?: number;
 }
 
 export interface IUserDocument extends IUser, Document {}
@@ -30,13 +33,18 @@ const userSchema = new Schema<IUserDocument>(
 		name: {
 			type: String,
 			required: [true, 'User name is required.'],
-			index: true,
+			index: {
+				collation: { locale: 'en', strength: 2 }
+			},
 			trim: true
 		},
 		username: {
 			type: String,
 			required: [true, 'username is required.'],
-			unique: true,
+			index: {
+				unique: true,
+				collation: { locale: 'en', strength: 2 }
+			},
 			minlength: [6, 'Username must at least be 6 characters.'],
 			lowercase: true,
 			trim: true
@@ -44,7 +52,10 @@ const userSchema = new Schema<IUserDocument>(
 		email: {
 			type: String,
 			required: [true, 'User email is required.'],
-			unique: true,
+			index: {
+				unique: true,
+				collation: { locale: 'en', strength: 2 }
+			},
 			validate: {
 				validator(v: string): boolean {
 					return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
@@ -59,10 +70,13 @@ const userSchema = new Schema<IUserDocument>(
 			select: false
 		},
 		picture: {
-			url: {
-				type: String,
-				required: true
-			}
+			type: {
+				url: {
+					type: String,
+					required: true
+				}
+			},
+			_id: false
 		},
 		roles: [
 			{
@@ -82,14 +96,12 @@ const userSchema = new Schema<IUserDocument>(
 		isActive: {
 			type: Boolean,
 			default: false
-		},
-		createdAt: Number,
-		updatedAt: Number
+		}
 	},
 	{
 		autoIndex: IS_DEV_MODE,
 		autoCreate: IS_DEV_MODE,
-		timestamps: { currentTime: () => Date.now() }
+		timestamps: true
 	}
 );
 
