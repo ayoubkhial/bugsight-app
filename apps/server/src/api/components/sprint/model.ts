@@ -1,5 +1,6 @@
 import { Document, Schema, Types, model } from 'mongoose';
 import environment from '../../../env/index';
+import IssueDAO from '../issue/dao';
 
 const IS_DEV_MODE = environment.node.env === 'development';
 
@@ -56,5 +57,12 @@ const sprintSchema = new Schema<ISprintDocument>(
 );
 
 sprintSchema.index({ name: 1, project: 1 }, { unique: true });
+
+sprintSchema.post('deleteMany', async function () {
+	const session = this.getOptions().session;
+	const query = this.getQuery();
+	const issueDAO = new IssueDAO();
+	await issueDAO.deleteMany({ project: query.project }, { session });
+});
 
 export default model<ISprintDocument>('Sprint', sprintSchema);
